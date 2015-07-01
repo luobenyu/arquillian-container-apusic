@@ -10,5 +10,6 @@ import org.jboss.arquillian.core.spi.LoadableExtension;
 public class ApusicExtension implements LoadableExtension{
     public void register(ExtensionBuilder builder) {
         builder.service(DeployableContainer.class, ApusicContainer.class);
+        builder.observer(DeploymentObserver.class);
     }
 }

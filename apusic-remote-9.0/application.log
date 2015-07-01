@@ -1,1 +1,0 @@
-2015-06-01 14:05:07,247 0     INFO  [com.apusic.arquillian.container.ApusicDeployer] (main:) Connecting to service:jmx:iiop://localhost:6888/jndi/jmx/rmi/RMIConnectorServer

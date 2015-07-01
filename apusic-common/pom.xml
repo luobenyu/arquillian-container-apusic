@@ -19,14 +19,14 @@
             <artifactId>aas</artifactId>
             <version>9.0</version>
             <scope>system</scope>
-            <systemPath>${aas.home}/apusic-9.0/lib/apusic.jar</systemPath>
+            <systemPath>${aas.home}/lib/apusic.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.apusic</groupId>
             <artifactId>javaee</artifactId>
             <version>9.0</version>
             <scope>system</scope>
-            <systemPath>${aas.home}/apusic-9.0/common/javaee.jar</systemPath>
+            <systemPath>${aas.home}/common/javaee.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

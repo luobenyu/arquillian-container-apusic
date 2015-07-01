@@ -46,7 +46,6 @@ public class ApusicDeployer {
     }
 
     public void connect() throws Exception {
-        //LogManager.getLogManager().readConfiguration();
         Map<String, String> props= new HashMap<String, String>();
         props.put(Context.SECURITY_PRINCIPAL, configuration.getUser());
         props.put(Context.SECURITY_CREDENTIALS, configuration.getPassword());
@@ -73,6 +72,12 @@ public class ApusicDeployer {
     }
 
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
+        return deploy(archive, null, null, null, null);
+    }
+
+    public ProtocolMetaData deploy(Archive<?> archive, String virtualHost, String baseContext, String startType,
+                                   Boolean globalSession)
+            throws DeploymentException {
         if (!connected)
             throw new IllegalStateException("Deployer not connected");
 
@@ -83,8 +88,8 @@ public class ApusicDeployer {
 
         try {
             archiveData = new RemoteBufferImpl(deploymentArchive);
-            //TODO: virtual host
-                    ObjectName appName= deployerMBean.deploy(deploymentName, archiveData, null, deploymentName, null);
+                    ObjectName appName= deployerMBean.deploy(deploymentName, archiveData, null, virtualHost, baseContext,
+                            startType, null, globalSession, null, null);
             String moduleType= (String)mbeanServer.getAttribute(appName, "ModuleTypeString");
             if (moduleType.equals("war")) {
                 pmd.addContext(buildContext(deploymentName, appName));
@@ -132,7 +137,7 @@ public class ApusicDeployer {
         {
             File root = File.createTempFile("arquillian_apusic", archive.getName());
             root.delete();
-            root.mkdirs();
+            if (!root.mkdirs()) throw new DeploymentException("Cannot create path temp archive file needed");
 
             File deployment = new File(root, archive.getName());
             deployment.deleteOnExit();

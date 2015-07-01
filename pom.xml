@@ -16,7 +16,7 @@
         <version.arquillian_core>1.1.8.Final</version.arquillian_core>
         <version.surefire.plugin>2.9</version.surefire.plugin>
 
-        <aas.home>/opt/ApusicTrunk/ApusicASv5</aas.home>
+        <aas.home>/opt/branches/SessionOptimizeFromTrunk/ApusicAS/apusic-9.0</aas.home>
     </properties>
 
     <dependencies>

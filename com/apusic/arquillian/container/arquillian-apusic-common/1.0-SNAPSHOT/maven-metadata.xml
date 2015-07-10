@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.apusic.arquillian.container</groupId>
+  <artifactId>arquillian-apusic-common</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20150710.083544</timestamp>
+      <buildNumber>3</buildNumber>
+    </snapshot>
+    <lastUpdated>20150710083544</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>1.0-20150710.083544-3</value>
+        <updated>20150710083544</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>1.0-20150710.083544-3</value>
+        <updated>20150710083544</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>

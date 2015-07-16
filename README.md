@@ -11,7 +11,8 @@ Configuration for Apusic container arquillian.xml:<br/>
 
 
 ##ChangeLog##
-
+July, 16 2015<br/>
+added a managed Apusic adapter
 
 July,1, 2015<br/>
 added @ApusicDeployment annotation for @Deployment, to support Apusic 'globalSession' feature, as well as

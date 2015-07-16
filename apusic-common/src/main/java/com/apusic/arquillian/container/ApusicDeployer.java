@@ -5,6 +5,7 @@ import com.apusic.deploy.runtime.J2EEDeployerMBean;
 import com.apusic.jmx.MBeanProxy;
 import com.apusic.jmx.adaptors.rmi.JNDINames;
 import com.apusic.util.RemoteBufferImpl;
+import com.apusic.util.Utils;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
@@ -23,7 +24,11 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -82,28 +87,19 @@ public class ApusicDeployer {
             throw new IllegalStateException("Deployer not connected");
 
         String deploymentName = getDeploymentName(archive);
-        File deploymentArchive = toFile(archive);
-        RemoteBufferImpl archiveData= null;
         ProtocolMetaData pmd= new ProtocolMetaData();
 
         try {
-            archiveData = new RemoteBufferImpl(deploymentArchive);
-                    ObjectName appName= deployerMBean.deploy(deploymentName, archiveData, null, virtualHost, baseContext,
-                            startType, null, globalSession, null, null);
-            String moduleType= (String)mbeanServer.getAttribute(appName, "ModuleTypeString");
+            ObjectName appName = deployerMBean.deploy(deploymentName, toByte(archive), null, virtualHost, baseContext,
+                    startType, null, globalSession, null, null);
+            String moduleType = (String) mbeanServer.getAttribute(appName, "ModuleTypeString");
             if (moduleType.equals("war")) {
                 pmd.addContext(buildContext(deploymentName, appName));
-            }else {  //TODO: ear
+            } else {  //TODO: ear
                 throw new UnsupportedOperationException("File other than war has not been supported yet.");
             }
         }catch (Exception e) {
              throw new DeploymentException("Deploying error", e);
-        }finally {
-            if (archiveData!=null) {
-                try {
-                    archiveData.close();
-                }catch (IOException ioe) {}
-            }
         }
 
         if (log.isLoggable(Level.FINE))
@@ -131,22 +127,32 @@ public class ApusicDeployer {
         return archiveFilename;
     }
 
-    private  File toFile(final Archive<?> archive)
-    {
-        try
-        {
-            File root = File.createTempFile("arquillian_apusic", archive.getName());
-            root.delete();
-            if (!root.mkdirs()) throw new DeploymentException("Cannot create path temp archive file needed");
-
-            File deployment = new File(root, archive.getName());
-            deployment.deleteOnExit();
-            archive.as(ZipExporter.class).exportTo(deployment, true);
-            return deployment;
-        }
-        catch (Exception e)
-        {
+    private  byte[] toByte(final Archive<?> archive) {
+        InputStream inputStream = null;
+        try {
+            inputStream = archive.as(ZipExporter.class).exportAsInputStream();
+            int readed = 0,CAPACITY = 1024;
+            byte[] retVal = new byte[CAPACITY],temp = new byte[CAPACITY];
+            int i = 0;
+            while ((i=inputStream.read(temp,0,CAPACITY)) != -1){
+                if (i > (retVal.length - readed)){
+                    byte[] add = new byte[retVal.length + i];
+                    System.arraycopy(retVal,0,add,0,readed);
+                    retVal = add;
+                }
+                System.arraycopy(temp,0,retVal,readed,i);
+                readed += i;
+            }
+            return retVal;
+        } catch (Exception e) {
             throw new RuntimeException("Could not export deployment to temp", e);
+        } finally {
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                }
+            }
         }
     }
 

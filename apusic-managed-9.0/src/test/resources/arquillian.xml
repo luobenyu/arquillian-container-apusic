@@ -1,0 +1,17 @@
+
+
+<arquillian xmlns="http://jboss.org/schema/arquillian"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="
+        http://jboss.org/schema/arquillian
+        http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+        <container qualifier="aas1" default="true">
+            <configuration>
+                <property name="apusic_home">D:/apusic-9.0</property>
+                <property name="user">admin</property>
+                <property name="password">1qazCDE#</property>
+                <property name="host">192.168.106.100</property>
+                <property name="port">6888</property>
+            </configuration>
+        </container>
+</arquillian>

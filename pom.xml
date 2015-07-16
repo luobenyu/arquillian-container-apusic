@@ -63,5 +63,7 @@
     <modules>
         <module>apusic-common</module>
         <module>apusic-remote-9.0</module>
+        <module>apusic-managed-9.0</module>
+        <module>apusic-embedded-9.0</module>
     </modules>
 </project>

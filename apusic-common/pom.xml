@@ -16,17 +16,20 @@
     <dependencies>
         <dependency>
             <groupId>com.apusic</groupId>
-            <artifactId>aas</artifactId>
-            <version>9.0</version>
-            <scope>system</scope>
-            <systemPath>${aas.home}/lib/apusic.jar</systemPath>
+            <artifactId>apusic-core</artifactId>
+            <version>9.0.2</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.apusic</groupId>
-            <artifactId>javaee</artifactId>
-            <version>9.0</version>
-            <scope>system</scope>
-            <systemPath>${aas.home}/common/javaee.jar</systemPath>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-web-6.0</artifactId>
+            <version>3.0.3.Final</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.management.j2ee</groupId>
+            <artifactId>jboss-j2eemgmt-api_1.1_spec</artifactId>
+            <version>1.0.1.Final</version>
         </dependency>
     </dependencies>
 </project>

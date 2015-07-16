@@ -56,4 +56,12 @@ public class CommonApusicConfiguration implements ContainerConfiguration{
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getApusic_home() {
+        return apusic_home;
+    }
+
+    public void setApusic_home(String apusic_home) {
+        this.apusic_home = apusic_home;
+    }
 }

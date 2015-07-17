@@ -14,12 +14,21 @@
 
 
     <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>com.apusic</groupId>-->
+            <!--<artifactId>apusic-core</artifactId>-->
+            <!--<version>9.0.2</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>com.apusic</groupId>
-            <artifactId>apusic-core</artifactId>
-            <version>9.0.2</version>
-            <scope>compile</scope>
+            <artifactId>aas</artifactId>
+            <version>9.0</version>
+            <scope>system</scope>
+            <systemPath>${aas.home}/lib/apusic.jar</systemPath>
         </dependency>
+
         <dependency>
             <groupId>org.jboss.spec</groupId>
             <artifactId>jboss-javaee-web-6.0</artifactId>

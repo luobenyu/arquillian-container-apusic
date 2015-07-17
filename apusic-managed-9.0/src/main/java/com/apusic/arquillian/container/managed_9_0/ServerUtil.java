@@ -5,18 +5,14 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Chmod;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 
 /**
- * 包括启动服务器， 停止服务器
+ * Including start and stop  server
  *
  * @author zhengdl
  */
@@ -25,14 +21,16 @@ public class ServerUtil {
 
     private static final Map<ApusicManagedConfiguration, Object[]> serverIOMap = new HashMap<ApusicManagedConfiguration, Object[]>();
 
+    private static final ResourceBundle bundle =ResourceBundle.getBundle(ServerUtil.class.getPackage().getName() + ".LocalStrings");
+
     /**
-     * 启动Apusic Server
+     * Startup Apusic Server
      *
      * @param as
      */
     public static void startup(ApusicManagedConfiguration as) {
         if (serverIOMap.containsKey(as)) {
-            throw new RuntimeException(as + " 已经启动!!");
+            throw new RuntimeException(as + " " + bundle.getString("SERVER_ALREADY_STARTUP"));
         }
         String apusicpath = null;
         StringBuilder sb = new StringBuilder().append(as.getApusic_home()).append(File.separatorChar)
@@ -51,7 +49,7 @@ public class ServerUtil {
                 apusicpath = sb.append(File.separatorChar).append("startapusic").toString();
                 new File(apusicpath).setExecutable(true);
             }
-            log.info("启动服务器:" + apusicpath);
+            log.info(bundle.getString("STARTING_SERVER") + apusicpath);
             // Process p;
             p = Runtime.getRuntime().exec(apusicpath);
             InputStream out = p.getInputStream();
@@ -61,7 +59,7 @@ public class ServerUtil {
             outPumper.start();
             errPumper.start();
             serverIOMap.put(as, new Object[]{p, outPumper, errPumper});
-            // 等待2分钟，或检测到服务器就绪
+            // waiting 2 minutes or server is started
             int i = 120;
             while (i > 0 && !outPumper.isServerStarted()) {
                 try {
@@ -71,9 +69,9 @@ public class ServerUtil {
                 i--;
             }
             if (outPumper.isServerStarted()) {
-                log.info("已启动服务器......");
+                log.info(bundle.getString("SERVER_IS_READY"));
             } else if (i <= 0) {
-                log.warn("2分钟程序未检测服务器输出\"服务器就绪\"，请人工确认服务器是否启动");
+                log.warn(bundle.getString("SERVER_NOT_RESPONSE"));
                 throw new Exception();
             }
         } catch (Exception e) {

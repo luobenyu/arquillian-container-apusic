@@ -13,41 +13,45 @@ import com.apusic.tools.appctl.Main;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.util.ResourceBundle;
 
 /**
- * 部署应用或单个JSP
- * @author zhengdl
+ * deploy application
  *
+ * @author zhengdl
  */
 public class DeployUtil {
-	private static final Logger log = Logger.getLogger(DeployUtil.class);
-	/**
-	 * 
-	 * @param app
-	 */
+    private static final Logger log = Logger.getLogger(DeployUtil.class.getName());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(DeployUtil.class.getPackage().getName() + ".LocalStrings");
+
+    /**
+     * @param app
+     */
     public static void deploy(String serverUrl, File app) {
         com.apusic.tools.appctl.Main appctl = new Main(System.out);
         try {
-        	log.info("部署应用:" + app.getAbsolutePath());
+            if (log.isInfoEnabled())
+                log.info(bundle.getString("DEPLOY_APPLICATION") + app.getAbsolutePath());
             appctl.run(new String[]{"-s", serverUrl, "-p", "admin", "install", app.getName(), app.getAbsolutePath()});
-		} catch (Exception e) {
-			log.error("部署失败：" + app.getName(), e);
-		}
+        } catch (Exception e) {
+            log.error(bundle.getString("DEPLOY_FAIL") + app.getName(), e);
+        }
     }
+
     /**
-     * 
      * @param appFullPath
      */
     public static void deploy(String serverUrl, String appFullPath) {
         deploy(serverUrl, new File(appFullPath));
     }
+
     /**
-     * 
      * @param appName
      */
     public static void undeploy(String appName) {
         com.apusic.tools.appctl.Main appctl = new Main(System.out);
-    	log.info("卸载应用:" + appName);
+        if (log.isInfoEnabled())
+            log.info(bundle.getString("UNDEPLOY_APPLICATION") + appName);
         appctl.run(new String[]{"-p", "admin", "uninstall", appName});
     }
 }

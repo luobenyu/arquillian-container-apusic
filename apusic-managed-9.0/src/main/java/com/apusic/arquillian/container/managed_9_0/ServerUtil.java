@@ -5,10 +5,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Chmod;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +18,7 @@ import java.util.ResourceBundle;
  * @author zhengdl
  */
 public class ServerUtil {
-    private static final Logger log = Logger.getLogger(ServerUtil.class);
+    private static final Logger log = Logger.getLogger(ServerUtil.class.getName());
 
     private static final Map<ApusicManagedConfiguration, Object[]> serverIOMap = new HashMap<ApusicManagedConfiguration, Object[]>();
 
@@ -106,6 +103,17 @@ public class ServerUtil {
         }
     }
 
+    private static boolean isServerStopped(ApusicManagedConfiguration as) {
+        SocketAddress host = new InetSocketAddress(as.getHost(),as.getPort());
+        Socket socket = new Socket();
+        try {
+            socket.connect(host);
+        } catch (IOException e) {
+            return  true;
+        }
+        return false;
+    }
+
     /**
      * 停止运行的server
      *
@@ -146,10 +154,10 @@ public class ServerUtil {
             StreamPumper errPumper = new StreamPumper(err, System.err);
             outPumper.start();
             errPumper.start();
-            // 等待2分钟，或检测到服务器关闭
+            // Wait 2 Min
             int i = 120;
             while (i > 0) {
-                if (!isServerStarted(as)) {
+                if (isServerStopped(as)) {
                     break;
                 }
                 try {
@@ -162,11 +170,11 @@ public class ServerUtil {
                 log.info(bundle.getString("SERVER_IS_SHUTDOWN") );
             } else if (i <= 0) {
                 log.warn(bundle.getString("SHUTDOWN_SERVER_NOT_RESPONSE") );
-            }
-            if (serverProcess != null) {
-                log.info(bundle.getString("FORCE_TO_SHUTDOWN"));
-                serverProcess.destroy();
-                serverProcess.waitFor();
+                if (serverProcess != null) {
+                    log.info(bundle.getString("FORCE_TO_SHUTDOWN"));
+                    serverProcess.destroy();
+                    serverProcess.waitFor();
+                }
             }
         } catch (Exception e) {
             log.error(bundle.getString("FAIL_TO_SHUTDOWN_SERVER"), e);
@@ -189,7 +197,6 @@ public class ServerUtil {
             this.in = in;
             this.out = out;
         }
-
 
         public void run() {
             BufferedReader br = null;

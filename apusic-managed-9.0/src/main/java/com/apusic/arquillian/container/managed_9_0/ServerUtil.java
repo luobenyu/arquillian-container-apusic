@@ -5,6 +5,10 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Chmod;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,27 +65,45 @@ public class ServerUtil {
             serverIOMap.put(as, new Object[]{p, outPumper, errPumper});
             // waiting 2 minutes or server is started
             int i = 120;
-            while (i > 0 && !outPumper.isServerStarted()) {
+            while (i > 0 ) {
+                if(isServerStarted(as))
+                    break;
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e) {
                 }
                 i--;
             }
-            if (outPumper.isServerStarted()) {
+            if (i > 0) {
                 log.info(bundle.getString("SERVER_IS_READY"));
             } else if (i <= 0) {
-                log.warn(bundle.getString("SERVER_NOT_RESPONSE"));
+                log.warn(bundle.getString("STARTUP_SERVER_NOT_RESPONSE"));
                 throw new Exception();
             }
         } catch (Exception e) {
-            log.error("启动服务器失败:" + apusicpath + ":" + e.getMessage(), e);
+            log.error(bundle.getString("FAIL_TO_START_SERVER") + apusicpath + ":" + e.getMessage(), e);
             if(p != null){
                 p.destroy();
             }
-            throw new RuntimeException("启动服务器失败:", e);
+            throw new RuntimeException(bundle.getString("FAIL_TO_START_SERVER") , e);
         }
 
+    }
+
+    private static boolean isServerStarted(ApusicManagedConfiguration as) throws MalformedURLException {
+        String testPage = as.getTestPage();
+        if(!testPage.startsWith("/"))
+            testPage = "/" + testPage;
+        URL testURl  = new URL("http",as.getHost(),as.getPort(),as.getTestPage());
+
+        HttpURLConnection connection= null;
+        try {
+            connection = (HttpURLConnection)testURl.openConnection();
+            connection.getResponseCode();
+            return true;
+        } catch (IOException e) {
+           return  false;
+        }
     }
 
     /**
@@ -116,7 +138,7 @@ public class ServerUtil {
                 mod.execute();
                 apusicpath = sb.append(" ").append(as.getUser()).append(" ").append(as.getPassword()).append(" iiop://").append(as.getHost()).append(":").append(as.getPort()).toString();
             }
-            log.info("关闭服务器:" + apusicpath);
+            log.info(bundle.getString("SHUTTING_DOWN_SERVER")  + apusicpath);
             Process p = Runtime.getRuntime().exec(apusicpath);
             InputStream out = p.getInputStream();
             InputStream err = p.getErrorStream();
@@ -127,7 +149,7 @@ public class ServerUtil {
             // 等待2分钟，或检测到服务器关闭
             int i = 120;
             while (i > 0) {
-                if (startServerOutPumper != null && startServerOutPumper.isServerStopped()) {
+                if (!isServerStarted(as)) {
                     break;
                 }
                 try {
@@ -136,17 +158,19 @@ public class ServerUtil {
                 }
                 i--;
             }
-            if (startServerOutPumper != null && startServerOutPumper.isServerStopped()) {
-                log.info("已经关闭服务器...");
+            if (i > 0) {
+                log.info(bundle.getString("SERVER_IS_SHUTDOWN") );
             } else if (i <= 0) {
-                log.warn("2分钟程序未检测服务器输出\"服务器已停止\"，请人工确认服务器是否关闭");
+                log.warn(bundle.getString("SHUTDOWN_SERVER_NOT_RESPONSE") );
             }
             if (serverProcess != null) {
+                log.info(bundle.getString("FORCE_TO_SHUTDOWN"));
                 serverProcess.destroy();
+                serverProcess.waitFor();
             }
         } catch (Exception e) {
-            log.error("关闭服务器失败:", e);
-            throw new RuntimeException("关闭服务器失败:" + apusicpath, e);
+            log.error(bundle.getString("FAIL_TO_SHUTDOWN_SERVER"), e);
+            throw new RuntimeException(bundle.getString("FAIL_TO_SHUTDOWN_SERVER") + apusicpath, e);
         }
     }
 
@@ -161,49 +185,24 @@ public class ServerUtil {
 
         private OutputStream out;
 
-        private boolean shutdown = false;
-
-        private volatile boolean serverStarted = false;
-        private volatile boolean serverStopped = false;
-
         StreamPumper(InputStream in, OutputStream out) {
             this.in = in;
             this.out = out;
         }
 
-        public void shutdown() {
-            shutdown = true;
-        }
-
-        public boolean isServerStarted() {
-            return serverStarted;
-        }
-
-        public boolean isServerStopped() {
-            return serverStopped;
-        }
 
         public void run() {
             BufferedReader br = null;
             BufferedWriter bw = null;
             try {
-                br = new BufferedReader(new InputStreamReader(in, Charset.forName("GBK")));
-                bw = new BufferedWriter(new OutputStreamWriter(out, Charset.forName("GBK")));
-                String readLine = br.readLine();
-                while (!shutdown && readLine != null) {
+                String encoding = System.getProperty("file.encoding");
+                br = new BufferedReader(new InputStreamReader(in,encoding));
+                bw = new BufferedWriter(new OutputStreamWriter(out,encoding));
+                String readLine = null;
+                while ((readLine=br.readLine()) != null) {
                     bw.write(readLine);
                     bw.newLine();
                     bw.flush();
-                    if (readLine.contains("apusic.server.Main")) {
-                        if (readLine.contains("服务器就绪")) {
-                            log.info("服务器就绪");
-                            serverStarted = true;
-                        } else if (readLine.contains("服务器已停止")) {
-                            log.info("服务器已停止");
-                            serverStopped = true;
-                        }
-                    }
-                    readLine = br.readLine();
                 }
             } catch (IOException e) {
             }

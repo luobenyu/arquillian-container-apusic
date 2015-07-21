@@ -10,6 +10,8 @@ public class ApusicManagedConfiguration extends CommonApusicConfiguration {
 
     private boolean useCMD = true;
 
+    private String testPage ="index.jsp";
+
     public String getDomain() {
         return domain;
     }
@@ -25,4 +27,13 @@ public class ApusicManagedConfiguration extends CommonApusicConfiguration {
     public void setUseCMD(boolean useCMD) {
         this.useCMD = useCMD;
     }
+
+    public String getTestPage() {
+        return testPage;
+    }
+
+    public void setTestPage(String testPage) {
+        this.testPage = testPage;
+    }
+
 }

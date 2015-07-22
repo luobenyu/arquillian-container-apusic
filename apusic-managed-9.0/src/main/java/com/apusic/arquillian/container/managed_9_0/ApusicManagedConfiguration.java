@@ -12,6 +12,8 @@ public class ApusicManagedConfiguration extends CommonApusicConfiguration {
 
     private String testPage ="index.jsp";
 
+    private String configFile = null;
+
     public String getDomain() {
         return domain;
     }
@@ -36,4 +38,11 @@ public class ApusicManagedConfiguration extends CommonApusicConfiguration {
         this.testPage = testPage;
     }
 
+    public String getConfigFile() {
+        return configFile;
+    }
+
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
 }

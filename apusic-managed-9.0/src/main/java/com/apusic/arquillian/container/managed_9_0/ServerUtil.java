@@ -6,11 +6,7 @@ import org.apache.tools.ant.taskdefs.Chmod;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
-
+import java.util.*;
 
 /**
  * Including start and stop  server
@@ -51,8 +47,20 @@ public class ServerUtil {
                 new File(apusicpath).setExecutable(true);
             }
             log.info(bundle.getString("STARTING_SERVER") + apusicpath);
-            // Process p;
-            p = Runtime.getRuntime().exec(apusicpath);
+            String[] envp = null;
+            if (as.getConfigFile() != null) {
+                File configFile = new File(as.getConfigFile());
+                if (!configFile.exists())
+                    throw new IllegalArgumentException(bundle.getString("CONFIG_FILE_NOT_EXIT") + as.getConfigFile());
+                Map<String,String> envs = System.getenv();
+                List<String> envsList = new ArrayList<String>();
+                for(String key : envs.keySet()){
+                    envsList.add(key + "=" + envs.get(key));
+                }
+                envsList.add("apusic.config=" + as.getConfigFile());
+                envp = envsList.toArray(new String[0]);
+            }
+            p = Runtime.getRuntime().exec(apusicpath, envp);
             InputStream out = p.getInputStream();
             InputStream err = p.getErrorStream();
             StreamPumper outPumper = new StreamPumper(out, System.out);

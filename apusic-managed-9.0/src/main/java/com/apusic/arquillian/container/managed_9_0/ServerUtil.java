@@ -99,7 +99,7 @@ public class ServerUtil {
         String testPage = as.getTestPage();
         if(!testPage.startsWith("/"))
             testPage = "/" + testPage;
-        URL testURl  = new URL("http",as.getHost(),as.getPort(),as.getTestPage());
+        URL testURl  = new URL("http",as.getHost(),as.getPort(),testPage);
 
         HttpURLConnection connection= null;
         try {

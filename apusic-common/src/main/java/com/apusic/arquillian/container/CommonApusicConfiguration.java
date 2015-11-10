@@ -62,6 +62,21 @@ public class CommonApusicConfiguration implements ContainerConfiguration{
     }
 
     public void setApusic_home(String apusic_home) {
+        while (apusic_home.indexOf("${") != -1) {
+            int start = apusic_home.indexOf('$') + 2;
+            int end = apusic_home.indexOf('}');
+            if (start < end) {
+                String property = apusic_home.substring(start, end);
+                String syspro = System.getProperty(property);
+                if (syspro != null && !syspro.isEmpty()) {
+                    apusic_home = apusic_home.replaceFirst("\\$\\{.*?\\}", syspro);
+                }else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
         this.apusic_home = apusic_home;
     }
 }
